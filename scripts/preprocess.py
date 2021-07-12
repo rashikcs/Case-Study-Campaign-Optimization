@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 import pickle
-
+from scripts.utils import read_list_from_text
 
 def extract_hour_from_time_string(df:pd.core.frame.DataFrame,
                                   hour_column:str, 
@@ -248,5 +248,25 @@ def get_prepared_data_summary(dataframe:pd.core.frame.DataFrame,
         print('{}%'.format((100*test_set[test_set.next_hour_good_performance>0].shape[0])/test_set.shape[0]))
         
         del test_set
+    except Exception as error:
+        raise Exception('Caught this error: ' + repr(error))
+
+def get_feature_list_from_text_excluding_target(feature_list_path:str,
+                                                target_column:str)->list:
+    """
+    Reads list fro the given text file. Removes target column from it and
+    returns the list
+
+    """  
+
+    try:
+        feature_list = read_list_from_text(feature_list_path)
+        feature_list.sort(reverse=True)
+        
+        if target_column in feature_list:
+            feature_list.remove(target_column)
+            
+        return feature_list
+    
     except Exception as error:
         raise Exception('Caught this error: ' + repr(error))

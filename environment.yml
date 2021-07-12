@@ -1,0 +1,8 @@
+name: campaign_case_study
+
+dependencies:
+  - python=3.8
+  - pip
+  - jupyter
+  - pip:
+    - -r file:requirements.txt

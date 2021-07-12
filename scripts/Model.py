@@ -3,7 +3,6 @@ import numpy as np
 import os
 import pickle
 from scripts.utils import create_directory
-from scripts.utils import read_list_from_text
 
 from lightgbm import LGBMClassifier
 from xgboost import XGBClassifier
@@ -101,22 +100,3 @@ def load_saved_model(path:str, model_name:str, extension:str='pickle')->object:
     except Exception as error:
         raise Exception('Caught this error: ' + repr(error))
 
-def get_feature_list_from_text_excluding_target(feature_list_path:str,
-                                                target_column:str)->list:
-    """
-    Reads list fro the given text file. Removes target column from it and
-    returns the list
-
-    """  
-
-    try:
-        feature_list = read_list_from_text(feature_list_path)
-        feature_list.sort(reverse=True)
-        
-        if target_column in feature_list:
-            feature_list.remove(target_column)
-            
-        return feature_list
-    
-    except Exception as error:
-        raise Exception('Caught this error: ' + repr(error))
