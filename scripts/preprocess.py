@@ -8,7 +8,11 @@ import pickle
 def extract_hour_from_time_string(df:pd.core.frame.DataFrame,
                                   hour_column:str, 
                                   sep:str='_',
-                                  format_string:str = '%H:%M:%S'):
+                                  format_string:str = '%H:%M:%S')->list:
+    """
+    Extracts hour from the passed hour column separated by the given character.
+    
+    """
     try:
         if sep=='_':
             return pd.to_datetime(df[hour_column].apply(lambda x: str(x).split('-')[0].strip()), format=format_string).dt.hour
@@ -23,6 +27,10 @@ def combine_two_ids_to_one_unique_id(df:pd.core.frame.DataFrame,
                                       column_2:str='ad_id',
                                       prefix1:str='campaign_id',
                                       prefix2:str='ad_id')->list:
+    """
+    Combines the two given column and returns by adding prefixes-> prefix1+column1+'_'+prefix2+column2
+    
+    """
     try:
         df[column_1] = [prefix1+'_' + str(i) for i in df[column_1]]
         df[column_2] = [prefix2 + str(i) for i in df[column_2]]
@@ -36,7 +44,12 @@ def extract_start_end_hour_per_id(df:pd.core.frame.DataFrame,
                                    start_hour_column_name:str = 'first_hour',
                                    end_hour_column_name:str = 'endtime',   
                                   )->pd.core.frame.DataFrame:
-    
+    """
+    Given the appropiate column names this function groups the 
+    rows by id and extracts start and endtime of the id in the 
+    dataframe. 
+
+    """   
     try:
         unique_campaign_advertisement_info = df[[id_column, datetime_column]].sort_values([datetime_column]).groupby(id_column).first().reset_index()
         unique_campaign_advertisement_info = unique_campaign_advertisement_info.rename(columns={datetime_column:start_hour_column_name})
@@ -54,7 +67,10 @@ def get_ads_lasting_n_hours(df:pd.core.frame.DataFrame,
                             start_time:str,
                             end_time:str,
                             n:int=25)->list:
-
+    """
+    Returns the ids of advertisements lasting atleast n hours. 
+    
+    """   
     try:
         df['duration_hours']=(df[end_time]-df[start_time]).astype('timedelta64[h]')
         df[df['duration_hours']>=n]
@@ -65,14 +81,18 @@ def get_ads_lasting_n_hours(df:pd.core.frame.DataFrame,
 
 def interpolate_missing_hours(series:pd.core.frame.DataFrame, 
                               date_column:str, 
-                              group_name:str)->pd.core.frame.DataFrame:
-
+                              group_name:str,
+                              fill_value:int = 0)->pd.core.frame.DataFrame:
+    """
+    Returns an updated dataframe filling the missing hours by fill_value.
+    
+    """ 
     try:
         series=series.set_index(date_column) 
         series = series.resample('H').asfreq()
 
         series['unique_ids'] = group_name
-        series = series.fillna(0).reset_index()
+        series = series.fillna(fill_value).reset_index()
 
         return series
     except Exception as error:
@@ -84,6 +104,12 @@ def set_train_test_identifier(series:pd.core.frame.DataFrame,
                               last_hour:int,
                               train_set_identifier:str,
                               test_set_identifier:str)->pd.core.frame.DataFrame:
+    """
+    Returns an updated dataframe to identify rows associated with train and test
+    dataset by boolean value. training rows must be <=last_hour and test rows are
+    opposite.
+    
+    """ 
     try:
         #set boolean columns to identify train anad test set
         series[train_set_identifier] = series[date_column]<=last_hour
@@ -99,7 +125,16 @@ def extract_and_interpolate_valid_ads(df:pd.core.frame.DataFrame,
                                       test_set_identifier:str='test_set',
                                       unique_id_name:str='unique_ids',
                                       test_days_per_ad:int=3)->pd.core.frame.DataFrame:
+  
+    """
+    Groups each id and sorts by date_column which has 24+test_days_per_ad hours of info
+    and interpolate in between missing values. Furthermore identifies rows belonging to 
+    train or test group and returns the updated dataframe.
     
+    Args:
+        test_days_per_ad:int -> days beyond 24 hours
+    """
+
     index = 1
     prepared_df = None
     hours_found_in_dataset = []
@@ -107,8 +142,6 @@ def extract_and_interpolate_valid_ads(df:pd.core.frame.DataFrame,
         grouped_unique_ids = df.sort_values(['datetime']).groupby('unique_ids')
 
         for group_name,series in grouped_unique_ids:
-
-            #=='campaign_id_23843427462090549_ad_id_23843429354180549':
             if group_name in unique_ads.index.values:
 
                 hours_found_in_dataset.append(series.shape[0])
@@ -138,6 +171,10 @@ def extract_and_interpolate_valid_ads(df:pd.core.frame.DataFrame,
 def get_ctr(prepared_df:pd.core.frame.DataFrame,
                   click_column:str='clicks',
                   impression_column:str='impressions')->list:
+    """
+    Calculates clickthrough rate i.e. clicks/impressions.
+    
+    """ 
     try:
         temp_df = pd.DataFrame({'ctr' : []})
         temp_df['ctr'] = prepared_df[click_column]/prepared_df[impression_column]*100
@@ -151,7 +188,11 @@ def get_ctr(prepared_df:pd.core.frame.DataFrame,
 def get_conversion_rate(prepared_df:pd.core.frame.DataFrame,
                               click_column:str='clicks',
                               purchase_column:str='purchase')->list:
-    #calculate conversion rate  and checks for non-sensical value (i.e. >100%)  
+    """
+    Calculates conversion rate i.e. purchase/clicks.
+    
+    """
+
     try:
         temp_df = pd.DataFrame({'conversion_rate' : []})
         temp_df['conversion_rate'] = prepared_df[purchase_column]/prepared_df[click_column]*100
@@ -169,6 +210,10 @@ def get_custom_conversion_rate(prepared_df:pd.core.frame.DataFrame,
                                      ctr_column:str='ctr',
                                      conversion_rate_column:str='conversion_rate',
                                      alpha_value:int = 2)->list:
+    """
+    Calculates custom conversion rate i.e. (click through rate +conversion rate)/alpha+1
+    
+    """
     try:
         return (prepared_df[ctr_column]+(prepared_df[conversion_rate_column]*alpha_value))/(alpha_value+1)
     except Exception as error:
@@ -179,7 +224,11 @@ def get_prepared_data_summary(dataframe:pd.core.frame.DataFrame,
                     training_set_column_indicator:str='first_24_hour',
                     test_set_column_indicator:str='test_set',
                     target_column:str= 'next_hour_good_performance')->None:
-
+    """
+    Prints info regarding train/test and good/bad performing advertisements in 
+    train and test datasets. 
+    
+    """
     try:
         training_set = dataframe[dataframe[training_set_column_indicator]]
 
