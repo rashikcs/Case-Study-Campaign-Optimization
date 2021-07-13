@@ -43,11 +43,12 @@ This solution proposes to processes the data and transforms this problem a super
   - **Project Structure**:
 
         .
-        ├── scripts                                # Contains all the necessray python files
-        │   ├── preprocess.py                      # Contains all the necessray fuctions for pre processing the given data
-        │   ├── utlis.py                           # Contains generic methods
-        │   ├── visualization.py                   # Contains methods for EDA
-        │   ├── model.py                           # Folder containing methods related to get used models
+        ├── scripts                                # Contain all the necessray python files
+        │   ├── preprocess.py                      # Contain all the necessray fuctions for pre processing the given data
+        │   ├── utlis.py                           # Contain generic methods
+        │   ├── visualization.py                   # Contain methods for visualizations
+        │   ├── evaluate.py                        # Contain methods related to evaluate models
+        │   ├── model.py                           # Contain methods related to get models used in this project
         ├── plots                                  # Folder containing all the plots genereated
         ├── results                                # Folder containing results of the trained models as csv
         ├── Modeling                               # Folder containing neessary *ipynb files for training model
