@@ -53,6 +53,7 @@ This solution proposes to processes the data and transforms this problem a super
         ├── results                                # Folder containing results of the trained models as csv
         ├── Modeling                               # Folder containing neessary *ipynb files for training model
         ├── trained_models                         # Folder containing saved trained models
+        ├── presentations                          # Folder containing the presentation
         ├── data                                   # Expects Folder containing data
         ├── PreProcess.ipynb
         ├── EDA.ipynb
