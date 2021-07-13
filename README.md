@@ -52,7 +52,8 @@ This solution proposes to processes the data and transforms this problem a super
         ├── plots                                  # Folder containing all the plots genereated
         ├── results                                # Folder containing results of the trained models as csv
         ├── Modeling                               # Folder containing neessary *ipynb files for training model
-        ├── data                                   # Folder containing data
+        ├── trained_models                         # Folder containing saved trained models
+        ├── data                                   # Expects Folder containing data
         ├── PreProcess.ipynb
         ├── EDA.ipynb
         ├── HPO.ipynb
